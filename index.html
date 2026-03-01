@@ -224,6 +224,20 @@
 
   .entry-delete:hover { color: var(--danger); border-color: var(--danger); }
 
+  .entry-edit {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 4px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+
+  .entry-edit:hover { color: var(--accent); border-color: var(--accent); }
+
   .entry-metrics {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -527,11 +541,32 @@ function renderEntries() {
     return `<div class="entry-card">
       <div class="entry-header">
         <div class="entry-date">${fmtDate(e.datum)}</div>
-        <button class="entry-delete" onclick="deleteEntry('${e.datum}')">×</button>
+        <div style="display:flex;gap:8px">
+          <button class="entry-edit" onclick="editEntry('${e.datum}')">✎</button>
+          <button class="entry-delete" onclick="deleteEntry('${e.datum}')">×</button>
+        </div>
       </div>
       <div class="entry-metrics">${pills || '<span style="color:var(--muted);font-size:14px">Keine Messwerte</span>'}</div>
     </div>`;
   }).join('');
+}
+
+function editEntry(datum) {
+  const data = loadData();
+  const entry = data.find(e => e.datum === datum);
+  if (!entry) return;
+
+  document.getElementById('inp-datum').value = entry.datum;
+  document.getElementById('inp-gewicht').value = entry.gewicht ?? '';
+  document.getElementById('inp-taille').value = entry.taille ?? '';
+  document.getElementById('inp-huefte').value = entry.huefte ?? '';
+  document.getElementById('inp-oberschenkel').value = entry.oberschenkel ?? '';
+  document.getElementById('inp-brust').value = entry.brust ?? '';
+  document.getElementById('inp-oberarm').value = entry.oberarm ?? '';
+
+  showTabDirect('eingabe');
+  document.querySelectorAll('.nav-btn')[2].classList.add('active');
+  document.querySelectorAll('.nav-btn')[0].classList.remove('active');
 }
 
 function deleteEntry(datum) {
