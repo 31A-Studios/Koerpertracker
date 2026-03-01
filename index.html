@@ -18,6 +18,7 @@
     --border: #2a2a38;
     --accent: #c8f060;
     --accent2: #60c8f0;
+    --accent3: #f0a060;
     --text: #e8e8f0;
     --muted: #8a8aaa;
     --danger: #f06060;
@@ -74,36 +75,50 @@
 
   .header h1 span { color: var(--accent); font-style: italic; }
 
+  /* Stats strip - 3 rows */
   .stats-strip {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1px;
-    background: var(--border);
     border-bottom: 1px solid var(--border);
   }
 
+  .stats-row {
+    display: grid;
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .stats-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .stats-row-2 { grid-template-columns: 1fr 1fr; }
+
   .stat-cell {
     background: var(--surface);
-    padding: 20px 12px;
+    padding: 16px 12px;
     text-align: center;
   }
 
   .stat-value {
     font-family: 'DM Serif Display', serif;
-    font-size: 28px;
+    font-size: 24px;
     color: var(--accent);
     line-height: 1;
   }
 
+  .stat-value.v2 { color: var(--accent2); }
+  .stat-value.v3 { color: var(--accent3); }
   .stat-value.negative { color: var(--accent); }
   .stat-value.positive { color: var(--danger); }
 
   .stat-label {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--muted);
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin-top: 5px;
+    margin-top: 4px;
+  }
+
+  .stat-sub {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
   }
 
   .nav {
@@ -113,21 +128,24 @@
     position: sticky;
     top: 0;
     z-index: 10;
+    overflow-x: auto;
   }
 
   .nav-btn {
     flex: 1;
-    padding: 18px 8px;
+    min-width: 70px;
+    padding: 16px 6px;
     background: none;
     border: none;
     color: var(--muted);
     font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    letter-spacing: 0.08em;
+    font-size: 11px;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s;
     border-bottom: 3px solid transparent;
+    white-space: nowrap;
   }
 
   .nav-btn.active {
@@ -138,6 +156,145 @@
   .section { display: none; padding: 20px; }
   .section.active { display: block; }
 
+  /* Backup bar */
+  .backup-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .backup-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    display: block;
+  }
+
+  .export-btn {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
+
+  .import-btn {
+    background: var(--surface);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+  }
+
+  .export-btn:active, .import-btn:active { opacity: 0.7; }
+
+  /* Entries */
+  .entries { display: flex; flex-direction: column; gap: 12px; }
+
+  .entry-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .entry-date {
+    font-size: 18px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .entry-actions { display: flex; gap: 8px; }
+
+  .entry-edit, .entry-delete {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 4px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+
+  .entry-edit:hover { color: var(--accent); border-color: var(--accent); }
+  .entry-delete:hover { color: var(--danger); border-color: var(--danger); }
+
+  .entry-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .metric-row {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+
+  .metric-row.highlight {
+    border: 1px solid var(--border);
+  }
+
+  .metric-name {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .metric-val {
+    font-size: 20px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .metric-val .unit {
+    font-size: 13px;
+    color: var(--muted);
+    margin-left: 3px;
+  }
+
+  .metric-val.accent { color: var(--accent); }
+  .metric-val.accent2 { color: var(--accent2); }
+  .metric-val.accent3 { color: var(--accent3); }
+
+  /* Divider */
+  .entry-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 12px 0;
+  }
+
+  .entry-calc-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  /* Chart */
   .chart-wrap {
     background: var(--card);
     border: 1px solid var(--border);
@@ -182,101 +339,23 @@
     font-weight: 500;
   }
 
-  .entries { display: flex; flex-direction: column; gap: 12px; }
-
-  .entry-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px 20px;
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .entry-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
-  }
-
-  .entry-date {
-    font-size: 18px;
-    color: var(--accent);
-    font-weight: 500;
-  }
-
-  .entry-delete {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 22px;
-    line-height: 1;
-    padding: 4px 12px;
-    border-radius: 6px;
-    transition: all 0.2s;
-  }
-
-  .entry-delete:hover { color: var(--danger); border-color: var(--danger); }
-
-  .entry-edit {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 18px;
-    line-height: 1;
-    padding: 4px 12px;
-    border-radius: 6px;
-    transition: all 0.2s;
-  }
-
-  .entry-edit:hover { color: var(--accent); border-color: var(--accent); }
-
-  .entry-metrics {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .metric-row {
-    display: flex;
-    flex-direction: column;
-    background: var(--surface);
-    border-radius: 8px;
-    padding: 10px 14px;
-  }
-
-  .metric-name {
-    font-size: 12px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 4px;
-  }
-
-  .metric-val {
-    font-size: 22px;
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  .metric-val .unit {
-    font-size: 14px;
-    color: var(--muted);
-    margin-left: 3px;
-  }
-
+  /* Form */
   .form-card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .form-section-title {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
   }
 
   .form-grid {
@@ -297,7 +376,8 @@
   }
 
   input[type="date"],
-  input[type="number"] {
+  input[type="number"],
+  select {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -311,7 +391,8 @@
     -webkit-appearance: none;
   }
 
-  input:focus { border-color: var(--accent); }
+  select option { background: var(--surface); }
+  input:focus, select:focus { border-color: var(--accent); }
   input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); }
 
   .save-btn {
@@ -328,6 +409,13 @@
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s;
+  }
+
+  .save-btn.secondary {
+    background: var(--surface);
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    margin-bottom: 12px;
   }
 
   .save-btn:active { opacity: 0.85; transform: scale(0.99); }
@@ -353,39 +441,35 @@
 
   .install-hint strong { color: var(--accent2); }
 
-  .backup-bar {
-    display: flex;
-    gap: 10px;
+  /* Settings info box */
+  .info-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent3);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
     margin-bottom: 16px;
   }
 
-  .backup-btn {
-    flex: 1;
-    padding: 14px;
-    border-radius: 10px;
-    font-family: 'DM Mono', monospace;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-    display: block;
+  .info-box strong { color: var(--accent3); }
+
+  /* BMI badge */
+  .bmi-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    margin-left: 8px;
+    vertical-align: middle;
   }
 
-  .export-btn {
-    background: var(--surface);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-  }
-
-  .import-btn {
-    background: var(--surface);
-    border: 1px solid var(--accent2);
-    color: var(--accent2);
-  }
-
-  .export-btn:active, .import-btn:active { opacity: 0.7; }
+  .bmi-unter { background: #60c8f022; color: var(--accent2); border: 1px solid var(--accent2); }
+  .bmi-normal { background: #c8f06022; color: var(--accent); border: 1px solid var(--accent); }
+  .bmi-über { background: #f0a06022; color: var(--accent3); border: 1px solid var(--accent3); }
+  .bmi-adipos { background: #f0606022; color: var(--danger); border: 1px solid var(--danger); }
 </style>
 </head>
 <body>
@@ -396,17 +480,34 @@
   </div>
 
   <div class="stats-strip">
-    <div class="stat-cell">
-      <div class="stat-value" id="stat-start">–</div>
-      <div class="stat-label">Start kg</div>
+    <div class="stats-row stats-row-3" style="border-bottom:1px solid var(--border)">
+      <div class="stat-cell">
+        <div class="stat-value" id="stat-start">–</div>
+        <div class="stat-label">Start kg</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value" id="stat-current">–</div>
+        <div class="stat-label">Aktuell kg</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value negative" id="stat-diff">–</div>
+        <div class="stat-label">Verlust kg</div>
+      </div>
     </div>
-    <div class="stat-cell">
-      <div class="stat-value" id="stat-current">–</div>
-      <div class="stat-label">Aktuell kg</div>
-    </div>
-    <div class="stat-cell">
-      <div class="stat-value negative" id="stat-diff">–</div>
-      <div class="stat-label">Verlust kg</div>
+    <div class="stats-row stats-row-3">
+      <div class="stat-cell">
+        <div class="stat-value v2" id="stat-bmi">–</div>
+        <div class="stat-label">BMI</div>
+        <div class="stat-sub" id="stat-bmi-label">–</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value v3" id="stat-bf">–</div>
+        <div class="stat-label">Körperfett %</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value" id="stat-mm">–</div>
+        <div class="stat-label">Muskelmasse kg</div>
+      </div>
     </div>
   </div>
 
@@ -414,8 +515,10 @@
     <button class="nav-btn active" onclick="showTab('verlauf', this)">Verlauf</button>
     <button class="nav-btn" onclick="showTab('diagramm', this)">Diagramm</button>
     <button class="nav-btn" onclick="showTab('eingabe', this)">+ Eintrag</button>
+    <button class="nav-btn" onclick="showTab('einstellungen', this)">⚙ Settings</button>
   </nav>
 
+  <!-- Verlauf -->
   <div class="section active" id="tab-verlauf">
     <div class="backup-bar">
       <button class="backup-btn export-btn" onclick="exportData()">⬇ Export</button>
@@ -430,6 +533,7 @@
     </div>
   </div>
 
+  <!-- Diagramm -->
   <div class="section" id="tab-diagramm">
     <div class="chart-selector" id="chart-selector"></div>
     <div class="chart-wrap">
@@ -438,8 +542,10 @@
     </div>
   </div>
 
+  <!-- Eingabe -->
   <div class="section" id="tab-eingabe">
     <div class="form-card">
+      <div class="form-section-title">Messung</div>
       <div class="form-grid">
         <div class="form-field full">
           <label>Datum</label>
@@ -473,42 +579,194 @@
       <button class="save-btn" onclick="saveEntry()">Speichern</button>
     </div>
   </div>
+
+  <!-- Einstellungen -->
+  <div class="section" id="tab-einstellungen">
+    <div class="info-box">
+      <strong>Hinweis:</strong> Diese Angaben werden nur lokal auf deinem Gerät gespeichert und für die Berechnungen von BMI, Körperfett und Muskelmasse verwendet.
+    </div>
+    <div class="form-card">
+      <div class="form-section-title">Persönliche Daten</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Körpergröße (cm)</label>
+          <input type="number" id="set-groesse" placeholder="z.B. 180">
+        </div>
+        <div class="form-field">
+          <label>Geburtsjahr</label>
+          <input type="number" id="set-geburtsjahr" placeholder="z.B. 1985">
+        </div>
+        <div class="form-field">
+          <label>Geschlecht</label>
+          <select id="set-geschlecht">
+            <option value="m">Männlich</option>
+            <option value="w">Weiblich</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Zielgewicht (kg)</label>
+          <input type="number" id="set-ziel" step="0.1" placeholder="z.B. 90">
+        </div>
+      </div>
+      <button class="save-btn secondary" onclick="saveSettings()">Einstellungen speichern</button>
+    </div>
+
+    <div class="form-card">
+      <div class="form-section-title">Berechnungsformeln</div>
+      <div style="font-size:13px; color:var(--muted); line-height:1.8">
+        <p style="margin-bottom:10px"><strong style="color:var(--accent2)">BMI</strong><br>Gewicht ÷ (Größe in m)² <br>Unter 18,5 = Untergewicht · 18,5–24,9 = Normal · 25–29,9 = Übergewicht · 30+ = Adipositas</p>
+        <p style="margin-bottom:10px"><strong style="color:var(--accent3)">Körperfett % (Jackson-Pollock)</strong><br>Benutzt Brust + Taille + Oberschenkel + Alter<br>Körperdichte = 1.10938 - (0.0008267 × Summe) + (0.0000016 × Summe²) - (0.0002574 × Alter)<br>Körperfett% = (495 ÷ Körperdichte) - 450</p>
+        <p><strong style="color:var(--accent)">Muskelmasse</strong><br>Gewicht × (1 - Körperfett% ÷ 100)</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
-const DEFAULT_DATA = [];
-
+// ---- Storage ----
 function loadData() {
-  const saved = localStorage.getItem('koerper-tracker-v2');
+  const saved = localStorage.getItem('koerper-tracker-v3');
   if (saved) return JSON.parse(saved);
-  localStorage.setItem('koerper-tracker-v2', JSON.stringify(DEFAULT_DATA));
-  return DEFAULT_DATA;
+  return [];
 }
 
 function saveData(data) {
-  localStorage.setItem('koerper-tracker-v2', JSON.stringify(data));
+  localStorage.setItem('koerper-tracker-v3', JSON.stringify(data));
 }
 
+function loadSettings() {
+  const saved = localStorage.getItem('koerper-tracker-settings');
+  if (saved) return JSON.parse(saved);
+  return { groesse: null, geburtsjahr: null, geschlecht: 'm', ziel: null };
+}
+
+function saveSettings() {
+  const s = {
+    groesse: parseFloat(document.getElementById('set-groesse').value) || null,
+    geburtsjahr: parseInt(document.getElementById('set-geburtsjahr').value) || null,
+    geschlecht: document.getElementById('set-geschlecht').value,
+    ziel: parseFloat(document.getElementById('set-ziel').value) || null,
+  };
+  localStorage.setItem('koerper-tracker-settings', JSON.stringify(s));
+  updateStats();
+  renderEntries();
+  alert('Einstellungen gespeichert ✓');
+}
+
+function loadSettingsToForm() {
+  const s = loadSettings();
+  if (s.groesse) document.getElementById('set-groesse').value = s.groesse;
+  if (s.geburtsjahr) document.getElementById('set-geburtsjahr').value = s.geburtsjahr;
+  document.getElementById('set-geschlecht').value = s.geschlecht || 'm';
+  if (s.ziel) document.getElementById('set-ziel').value = s.ziel;
+}
+
+// ---- Calculations ----
+function calcBMI(gewicht, groesse) {
+  if (!gewicht || !groesse) return null;
+  return gewicht / Math.pow(groesse / 100, 2);
+}
+
+function bmiLabel(bmi) {
+  if (bmi < 18.5) return { text: 'Untergewicht', cls: 'bmi-unter' };
+  if (bmi < 25)   return { text: 'Normal', cls: 'bmi-normal' };
+  if (bmi < 30)   return { text: 'Übergewicht', cls: 'bmi-über' };
+  return { text: 'Adipositas', cls: 'bmi-adipos' };
+}
+
+function calcBodyFat(brust, taille, oberschenkel, alter, geschlecht) {
+  if (!brust || !taille || !oberschenkel || !alter) return null;
+  const summe = brust + taille + oberschenkel;
+  let dichte;
+  if (geschlecht === 'w') {
+    dichte = 1.0994921 - (0.0009929 * summe) + (0.0000023 * summe * summe) - (0.0001392 * alter);
+  } else {
+    dichte = 1.10938 - (0.0008267 * summe) + (0.0000016 * summe * summe) - (0.0002574 * alter);
+  }
+  return (495 / dichte) - 450;
+}
+
+function calcMuscleMass(gewicht, bf) {
+  if (!gewicht || bf == null) return null;
+  return gewicht * (1 - bf / 100);
+}
+
+function getAlter(geburtsjahr) {
+  if (!geburtsjahr) return null;
+  return new Date().getFullYear() - geburtsjahr;
+}
+
+// Gibt für einen Eintrag die letzten bekannten Werte zurück
+// Fehlende Felder werden aus früheren Einträgen aufgefüllt
+function getLatestValues(entry, allData) {
+  const fields = ['gewicht', 'taille', 'huefte', 'oberschenkel', 'brust', 'oberarm'];
+  const sorted = [...allData].sort((a, b) => a.datum.localeCompare(b.datum));
+  const idx = sorted.findIndex(e => e.datum === entry.datum);
+  const result = { ...entry };
+
+  fields.forEach(f => {
+    if (result[f] == null) {
+      // Suche rückwärts nach dem letzten bekannten Wert
+      for (let i = idx - 1; i >= 0; i--) {
+        if (sorted[i][f] != null) {
+          result[f] = sorted[i][f];
+          break;
+        }
+      }
+    }
+  });
+  return result;
+}
+
+// ---- Format ----
 function fmtDate(iso) {
   const [y, m, d] = iso.split('-');
   return `${d}.${m}.${y}`;
 }
 
+// ---- Stats ----
 function updateStats() {
-  const data = loadData().filter(e => e.gewicht);
-  if (!data.length) return;
+  const data = loadData();
+  const settings = loadSettings();
+  const alter = getAlter(settings.geburtsjahr);
+
   const sorted = [...data].sort((a, b) => a.datum.localeCompare(b.datum));
-  const first = sorted[0].gewicht;
-  const last = sorted[sorted.length - 1].gewicht;
-  const diff = (last - first).toFixed(1);
-  document.getElementById('stat-start').textContent = first;
-  document.getElementById('stat-current').textContent = last;
-  const diffEl = document.getElementById('stat-diff');
-  diffEl.textContent = diff;
-  diffEl.className = 'stat-value ' + (parseFloat(diff) < 0 ? 'negative' : 'positive');
+  const withWeight = sorted.filter(e => e.gewicht);
+
+  if (withWeight.length) {
+    const first = withWeight[0].gewicht;
+    const last = withWeight[withWeight.length - 1].gewicht;
+    const diff = (last - first).toFixed(1);
+    document.getElementById('stat-start').textContent = first;
+    document.getElementById('stat-current').textContent = last;
+    const diffEl = document.getElementById('stat-diff');
+    diffEl.textContent = diff;
+    diffEl.className = 'stat-value ' + (parseFloat(diff) < 0 ? 'negative' : 'positive');
+
+    // BMI mit aktuellem Gewicht
+    const bmi = calcBMI(last, settings.groesse);
+    if (bmi) {
+      const lbl = bmiLabel(bmi);
+      document.getElementById('stat-bmi').textContent = bmi.toFixed(1);
+      document.getElementById('stat-bmi-label').textContent = lbl.text;
+    }
+  }
+
+  // Körperfett & Muskelmasse: letzten Eintrag nehmen und fehlende Werte auffüllen
+  if (sorted.length && alter) {
+    const lastEntry = sorted[sorted.length - 1];
+    const filled = getLatestValues(lastEntry, data);
+    const bf = calcBodyFat(filled.brust, filled.taille, filled.oberschenkel, alter, settings.geschlecht);
+    if (bf) {
+      document.getElementById('stat-bf').textContent = bf.toFixed(1) + '%';
+      const mm = calcMuscleMass(filled.gewicht, bf);
+      if (mm) document.getElementById('stat-mm').textContent = mm.toFixed(1);
+    }
+  }
 }
 
+// ---- Render entries ----
 const METRIC_LABELS = {
   gewicht: 'Gewicht', taille: 'Taille', huefte: 'Hüfte',
   oberschenkel: 'Oberschenkel', brust: 'Brust', oberarm: 'Oberarm',
@@ -520,6 +778,8 @@ const METRIC_UNITS = {
 
 function renderEntries() {
   const data = loadData();
+  const settings = loadSettings();
+  const alter = getAlter(settings.geburtsjahr);
   const sorted = [...data].sort((a, b) => b.datum.localeCompare(a.datum));
   const container = document.getElementById('entries-list');
 
@@ -529,6 +789,8 @@ function renderEntries() {
   }
 
   container.innerHTML = sorted.map(e => {
+    const filled = getLatestValues(e, data);
+
     const pills = Object.entries(METRIC_LABELS)
       .filter(([k]) => e[k] != null)
       .map(([k, name]) => `
@@ -538,24 +800,57 @@ function renderEntries() {
         </div>`)
       .join('');
 
+    // Calculated values using filled (last known) values
+    let calcHtml = '';
+    const bmi = calcBMI(filled.gewicht, settings.groesse);
+    const bf = calcBodyFat(filled.brust, filled.taille, filled.oberschenkel, alter, settings.geschlecht);
+    const mm = calcMuscleMass(filled.gewicht, bf);
+
+    const calcs = [];
+    if (bmi) {
+      const lbl = bmiLabel(bmi);
+      calcs.push(`<div class="metric-row highlight">
+        <div class="metric-name">BMI</div>
+        <div class="metric-val accent2">${bmi.toFixed(1)}<span class="unit"> <span class="bmi-badge ${lbl.cls}">${lbl.text}</span></span></div>
+      </div>`);
+    }
+    if (bf) {
+      calcs.push(`<div class="metric-row highlight">
+        <div class="metric-name">Körperfett</div>
+        <div class="metric-val accent3">${bf.toFixed(1)}<span class="unit"> %</span></div>
+      </div>`);
+    }
+    if (mm) {
+      calcs.push(`<div class="metric-row highlight">
+        <div class="metric-name">Muskelmasse</div>
+        <div class="metric-val accent">${mm.toFixed(1)}<span class="unit"> kg</span></div>
+      </div>`);
+    }
+
+    if (calcs.length) {
+      calcHtml = `<div class="entry-divider"></div>
+        <div class="entry-calc-label">Berechnungen</div>
+        <div class="entry-metrics">${calcs.join('')}</div>`;
+    }
+
     return `<div class="entry-card">
       <div class="entry-header">
         <div class="entry-date">${fmtDate(e.datum)}</div>
-        <div style="display:flex;gap:8px">
+        <div class="entry-actions">
           <button class="entry-edit" onclick="editEntry('${e.datum}')">✎</button>
           <button class="entry-delete" onclick="deleteEntry('${e.datum}')">×</button>
         </div>
       </div>
       <div class="entry-metrics">${pills || '<span style="color:var(--muted);font-size:14px">Keine Messwerte</span>'}</div>
+      ${calcHtml}
     </div>`;
   }).join('');
 }
 
+// ---- Edit ----
 function editEntry(datum) {
-  const data = loadData();
-  const entry = data.find(e => e.datum === datum);
+  const entry = loadData().find(e => e.datum === datum);
   if (!entry) return;
-
   document.getElementById('inp-datum').value = entry.datum;
   document.getElementById('inp-gewicht').value = entry.gewicht ?? '';
   document.getElementById('inp-taille').value = entry.taille ?? '';
@@ -563,20 +858,18 @@ function editEntry(datum) {
   document.getElementById('inp-oberschenkel').value = entry.oberschenkel ?? '';
   document.getElementById('inp-brust').value = entry.brust ?? '';
   document.getElementById('inp-oberarm').value = entry.oberarm ?? '';
-
-  showTabDirect('eingabe');
-  document.querySelectorAll('.nav-btn')[2].classList.add('active');
-  document.querySelectorAll('.nav-btn')[0].classList.remove('active');
+  showTabDirect('eingabe', 2);
 }
 
+// ---- Delete ----
 function deleteEntry(datum) {
   if (!confirm('Eintrag vom ' + fmtDate(datum) + ' löschen?')) return;
-  const data = loadData().filter(e => e.datum !== datum);
-  saveData(data);
+  saveData(loadData().filter(e => e.datum !== datum));
   renderEntries();
   updateStats();
 }
 
+// ---- Save entry ----
 function saveEntry() {
   const datum = document.getElementById('inp-datum').value;
   if (!datum) { alert('Bitte Datum eingeben'); return; }
@@ -602,9 +895,44 @@ function saveEntry() {
   fields.forEach((f, i) => document.getElementById(ids[i]).value = '');
   renderEntries();
   updateStats();
-  showTabDirect('verlauf');
+  showTabDirect('verlauf', 0);
 }
 
+// ---- Export / Import ----
+function exportData() {
+  const data = loadData();
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `koerper-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) throw new Error();
+      if (!confirm(`${data.length} Einträge importieren? Bestehende Daten werden überschrieben.`)) return;
+      saveData(data);
+      renderEntries();
+      updateStats();
+      alert('Import erfolgreich! ✓');
+    } catch {
+      alert('Fehler: Ungültige Backup-Datei.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ---- Tabs ----
 function showTab(name, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -613,13 +941,14 @@ function showTab(name, btn) {
   if (name === 'diagramm') renderChart(activeMetric);
 }
 
-function showTabDirect(name) {
+function showTabDirect(name, idx) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  document.querySelectorAll('.nav-btn')[0].classList.add('active');
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
 }
 
+// ---- Chart ----
 let chartInstance = null;
 let activeMetric = 'gewicht';
 
@@ -707,41 +1036,9 @@ function renderChart(metric) {
   });
 }
 
-function exportData() {
-  const data = loadData();
-  const json = JSON.stringify(data, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const date = new Date().toISOString().split('T')[0];
-  a.href = url;
-  a.download = `koerper-tracker-backup-${date}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (!Array.isArray(data)) throw new Error();
-      if (!confirm(`${data.length} Einträge importieren? Bestehende Daten werden überschrieben.`)) return;
-      saveData(data);
-      renderEntries();
-      updateStats();
-      alert('Import erfolgreich! ✓');
-    } catch {
-      alert('Fehler: Ungültige Backup-Datei.');
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = '';
-}
-
+// ---- Init ----
 document.getElementById('inp-datum').value = new Date().toISOString().split('T')[0];
+loadSettingsToForm();
 buildChartSelector();
 renderEntries();
 updateStats();
