@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Körper Tracker">
+<meta name="theme-color" content="#0a0a0f">
+<title>Körper Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --card: #1a1a24;
+    --border: #2a2a38;
+    --accent: #c8f060;
+    --accent2: #60c8f0;
+    --text: #e8e8f0;
+    --muted: #8a8aaa;
+    --danger: #f06060;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 0 120px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    padding: 44px 24px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-label {
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 38px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .header h1 span { color: var(--accent); font-style: italic; }
+
+  .stats-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-cell {
+    background: var(--surface);
+    padding: 20px 12px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-value.negative { color: var(--accent); }
+  .stat-value.positive { color: var(--danger); }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 5px;
+  }
+
+  .nav {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .nav-btn {
+    flex: 1;
+    padding: 18px 8px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 3px solid transparent;
+  }
+
+  .nav-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .section { display: none; padding: 20px; }
+  .section.active { display: block; }
+
+  .chart-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px;
+    margin-bottom: 20px;
+  }
+
+  .chart-title {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  canvas { width: 100% !important; display: block; }
+
+  .chart-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .chart-sel-btn {
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .chart-sel-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 500;
+  }
+
+  .entries { display: flex; flex-direction: column; gap: 12px; }
+
+  .entry-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .entry-date {
+    font-size: 18px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .entry-delete {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+    padding: 4px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+
+  .entry-delete:hover { color: var(--danger); border-color: var(--danger); }
+
+  .entry-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .metric-row {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+
+  .metric-name {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .metric-val {
+    font-size: 22px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .metric-val .unit {
+    font-size: 14px;
+    color: var(--muted);
+    margin-left: 3px;
+  }
+
+  .form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .form-field { display: flex; flex-direction: column; gap: 8px; }
+  .form-field.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  input[type="date"],
+  input[type="number"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 17px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+    -webkit-appearance: none;
+  }
+
+  input:focus { border-color: var(--accent); }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); }
+
+  .save-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .save-btn:active { opacity: 0.85; transform: scale(0.99); }
+
+  .empty {
+    text-align: center;
+    color: var(--muted);
+    font-size: 15px;
+    padding: 50px 0;
+  }
+
+  .install-hint {
+    margin: 20px 0 0;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent2);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .install-hint strong { color: var(--accent2); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-label">Persönlicher</div>
+    <h1>Körper <span>Tracker</span></h1>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat-cell">
+      <div class="stat-value" id="stat-start">–</div>
+      <div class="stat-label">Start kg</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-value" id="stat-current">–</div>
+      <div class="stat-label">Aktuell kg</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-value negative" id="stat-diff">–</div>
+      <div class="stat-label">Verlust kg</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showTab('verlauf', this)">Verlauf</button>
+    <button class="nav-btn" onclick="showTab('diagramm', this)">Diagramm</button>
+    <button class="nav-btn" onclick="showTab('eingabe', this)">+ Eintrag</button>
+  </nav>
+
+  <div class="section active" id="tab-verlauf">
+    <div class="entries" id="entries-list"></div>
+    <div class="install-hint">
+      💡 <strong>Als App speichern:</strong> Tippe in Safari auf das Teilen-Symbol ↑ und wähle „Zum Home-Bildschirm hinzufügen"
+    </div>
+  </div>
+
+  <div class="section" id="tab-diagramm">
+    <div class="chart-selector" id="chart-selector"></div>
+    <div class="chart-wrap">
+      <div class="chart-title" id="chart-label">Gewichtsverlauf</div>
+      <canvas id="myChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="section" id="tab-eingabe">
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="form-field full">
+          <label>Datum</label>
+          <input type="date" id="inp-datum">
+        </div>
+        <div class="form-field">
+          <label>Gewicht (kg)</label>
+          <input type="number" id="inp-gewicht" step="0.1" placeholder="–">
+        </div>
+        <div class="form-field">
+          <label>Taille (cm)</label>
+          <input type="number" id="inp-taille" step="0.5" placeholder="–">
+        </div>
+        <div class="form-field">
+          <label>Hüfte (cm)</label>
+          <input type="number" id="inp-huefte" step="0.5" placeholder="–">
+        </div>
+        <div class="form-field">
+          <label>Oberschenkel (cm)</label>
+          <input type="number" id="inp-oberschenkel" step="0.5" placeholder="–">
+        </div>
+        <div class="form-field">
+          <label>Brust (cm)</label>
+          <input type="number" id="inp-brust" step="0.5" placeholder="–">
+        </div>
+        <div class="form-field">
+          <label>Oberarm (cm)</label>
+          <input type="number" id="inp-oberarm" step="0.5" placeholder="–">
+        </div>
+      </div>
+      <button class="save-btn" onclick="saveEntry()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+const DEFAULT_DATA = [
+  { datum: '2025-05-01', gewicht: 133.3 },
+  { datum: '2025-08-17', gewicht: 116.0, taille: 126, huefte: 131, oberschenkel: 69 },
+  { datum: '2025-08-24', gewicht: 115.0, taille: 124, huefte: 114, oberschenkel: 70 },
+  { datum: '2025-08-29', gewicht: 111.3, taille: 119, huefte: 115, oberschenkel: 68 },
+  { datum: '2025-09-10', gewicht: 111.6, taille: 120, huefte: 112, oberschenkel: 66 },
+  { datum: '2025-09-20', gewicht: 111.4, taille: 115, huefte: 113, oberschenkel: 67 },
+  { datum: '2025-09-27', gewicht: 110.3, taille: 114, huefte: 113, oberschenkel: 64 },
+  { datum: '2025-10-01', gewicht: 109.8, taille: 109, huefte: 118, oberschenkel: 66 },
+  { datum: '2025-10-22', gewicht: 107.8 },
+  { datum: '2025-11-07', gewicht: 106.5 },
+  { datum: '2025-11-09', gewicht: 105.5 },
+  { datum: '2026-02-08', taille: 102, huefte: 112, oberschenkel: 63, brust: 110, oberarm: 39 },
+];
+
+function loadData() {
+  const saved = localStorage.getItem('koerper-tracker-v2');
+  if (saved) return JSON.parse(saved);
+  localStorage.setItem('koerper-tracker-v2', JSON.stringify(DEFAULT_DATA));
+  return DEFAULT_DATA;
+}
+
+function saveData(data) {
+  localStorage.setItem('koerper-tracker-v2', JSON.stringify(data));
+}
+
+function fmtDate(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d}.${m}.${y}`;
+}
+
+function updateStats() {
+  const data = loadData().filter(e => e.gewicht);
+  if (!data.length) return;
+  const sorted = [...data].sort((a, b) => a.datum.localeCompare(b.datum));
+  const first = sorted[0].gewicht;
+  const last = sorted[sorted.length - 1].gewicht;
+  const diff = (last - first).toFixed(1);
+  document.getElementById('stat-start').textContent = first;
+  document.getElementById('stat-current').textContent = last;
+  const diffEl = document.getElementById('stat-diff');
+  diffEl.textContent = diff;
+  diffEl.className = 'stat-value ' + (parseFloat(diff) < 0 ? 'negative' : 'positive');
+}
+
+const METRIC_LABELS = {
+  gewicht: 'Gewicht', taille: 'Taille', huefte: 'Hüfte',
+  oberschenkel: 'Oberschenkel', brust: 'Brust', oberarm: 'Oberarm',
+};
+const METRIC_UNITS = {
+  gewicht: 'kg', taille: 'cm', huefte: 'cm',
+  oberschenkel: 'cm', brust: 'cm', oberarm: 'cm',
+};
+
+function renderEntries() {
+  const data = loadData();
+  const sorted = [...data].sort((a, b) => b.datum.localeCompare(a.datum));
+  const container = document.getElementById('entries-list');
+
+  if (!sorted.length) {
+    container.innerHTML = '<div class="empty">Noch keine Einträge vorhanden</div>';
+    return;
+  }
+
+  container.innerHTML = sorted.map(e => {
+    const pills = Object.entries(METRIC_LABELS)
+      .filter(([k]) => e[k] != null)
+      .map(([k, name]) => `
+        <div class="metric-row">
+          <div class="metric-name">${name}</div>
+          <div class="metric-val">${e[k]}<span class="unit"> ${METRIC_UNITS[k]}</span></div>
+        </div>`)
+      .join('');
+
+    return `<div class="entry-card">
+      <div class="entry-header">
+        <div class="entry-date">${fmtDate(e.datum)}</div>
+        <button class="entry-delete" onclick="deleteEntry('${e.datum}')">×</button>
+      </div>
+      <div class="entry-metrics">${pills || '<span style="color:var(--muted);font-size:14px">Keine Messwerte</span>'}</div>
+    </div>`;
+  }).join('');
+}
+
+function deleteEntry(datum) {
+  if (!confirm('Eintrag vom ' + fmtDate(datum) + ' löschen?')) return;
+  const data = loadData().filter(e => e.datum !== datum);
+  saveData(data);
+  renderEntries();
+  updateStats();
+}
+
+function saveEntry() {
+  const datum = document.getElementById('inp-datum').value;
+  if (!datum) { alert('Bitte Datum eingeben'); return; }
+
+  const entry = { datum };
+  const fields = ['gewicht', 'taille', 'huefte', 'oberschenkel', 'brust', 'oberarm'];
+  const ids    = ['inp-gewicht', 'inp-taille', 'inp-huefte', 'inp-oberschenkel', 'inp-brust', 'inp-oberarm'];
+
+  let hasValue = false;
+  fields.forEach((f, i) => {
+    const v = document.getElementById(ids[i]).value;
+    if (v !== '') { entry[f] = parseFloat(v); hasValue = true; }
+  });
+
+  if (!hasValue) { alert('Bitte mindestens einen Wert eingeben'); return; }
+
+  const data = loadData();
+  const existing = data.findIndex(e => e.datum === datum);
+  if (existing >= 0) data[existing] = { ...data[existing], ...entry };
+  else data.push(entry);
+  saveData(data);
+
+  fields.forEach((f, i) => document.getElementById(ids[i]).value = '');
+  renderEntries();
+  updateStats();
+  showTabDirect('verlauf');
+}
+
+function showTab(name, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'diagramm') renderChart(activeMetric);
+}
+
+function showTabDirect(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.nav-btn')[0].classList.add('active');
+}
+
+let chartInstance = null;
+let activeMetric = 'gewicht';
+
+const metricConfig = {
+  gewicht:      { label: 'Gewicht (kg)',      color: '#c8f060' },
+  taille:       { label: 'Taille (cm)',       color: '#60c8f0' },
+  huefte:       { label: 'Hüfte (cm)',        color: '#f0a060' },
+  oberschenkel: { label: 'Oberschenkel (cm)', color: '#a060f0' },
+  brust:        { label: 'Brust (cm)',        color: '#f06090' },
+  oberarm:      { label: 'Oberarm (cm)',      color: '#60f0a0' },
+};
+
+function buildChartSelector() {
+  const sel = document.getElementById('chart-selector');
+  sel.innerHTML = Object.entries(metricConfig).map(([k, v]) =>
+    `<button class="chart-sel-btn ${k === activeMetric ? 'active' : ''}" onclick="selectMetric('${k}')">${v.label}</button>`
+  ).join('');
+}
+
+function selectMetric(metric) {
+  activeMetric = metric;
+  buildChartSelector();
+  renderChart(metric);
+}
+
+function renderChart(metric) {
+  const cfg = metricConfig[metric];
+  const data = loadData()
+    .filter(e => e[metric] != null)
+    .sort((a, b) => a.datum.localeCompare(b.datum));
+
+  document.getElementById('chart-label').textContent = cfg.label;
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+  const ctx = document.getElementById('myChart').getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+  gradient.addColorStop(0, cfg.color + '44');
+  gradient.addColorStop(1, cfg.color + '00');
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(e => fmtDate(e.datum)),
+      datasets: [{
+        data: data.map(e => e[metric]),
+        borderColor: cfg.color,
+        backgroundColor: gradient,
+        borderWidth: 2.5,
+        pointBackgroundColor: cfg.color,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        tension: 0.3,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1a24',
+          borderColor: '#2a2a38',
+          borderWidth: 1,
+          titleColor: '#8a8aaa',
+          bodyColor: '#e8e8f0',
+          titleFont: { family: 'DM Mono', size: 12 },
+          bodyFont: { family: 'DM Mono', size: 15 },
+          padding: 12,
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.y} ${metric === 'gewicht' ? 'kg' : 'cm'}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#8a8aaa', font: { family: 'DM Mono', size: 11 }, maxRotation: 45 },
+          grid: { color: '#2a2a38' },
+        },
+        y: {
+          ticks: { color: '#8a8aaa', font: { family: 'DM Mono', size: 12 } },
+          grid: { color: '#2a2a38' },
+        }
+      }
+    }
+  });
+}
+
+document.getElementById('inp-datum').value = new Date().toISOString().split('T')[0];
+buildChartSelector();
+renderEntries();
+updateStats();
+</script>
+</body>
+</html>
